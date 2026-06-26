@@ -13,3 +13,8 @@
 - Node.js
 - Express.js
 - JavaScript
+
+## Installation
+
+1. npm i
+2. DEBUG=api-russell-marina:* npm start
