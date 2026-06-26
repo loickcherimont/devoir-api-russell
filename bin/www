@@ -4,9 +4,11 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('api-russell-marina:server');
-var http = require('http');
+import app from '../app.js';
+import debug from 'debug';
+import http from 'http';
+
+const logger = debug('api-russell-marina:server');
 
 /**
  * Get port from environment and store in Express.
