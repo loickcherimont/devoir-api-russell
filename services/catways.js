@@ -1,15 +1,14 @@
 import Catway from "../models/catway.js";
 
 async function addCatway(req, res, next) {
+
     const temp = {
-        catwayNumber: req.body.catwayNumber,
+        catwayNumber: await Catway.countDocuments() + 1,
         catwayType: req.body.catwayType,
         catwayState: req.body.catwayState,
     };
 
     try {
-        await validateCatwayNumberIsUnique(temp.catwayNumber);
-
         const catway = await Catway.create(temp);
 
         if (catway) return res.status(201).json(catway);
@@ -79,12 +78,6 @@ async function deleteCatwayByCatwayNumber(req, res, next) {
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-}
-
-async function validateCatwayNumberIsUnique(catwayNumber) {
-    const existingCatway = await Catway.findOne({ catwayNumber });
-
-    if (existingCatway) throw new Error("Le numéro de catway existe déjà");
 }
 
 export default { addCatway, getAllCatways, getCatwayByCatwayNumber, updateCatwayStateByCatwayNumber, deleteCatwayByCatwayNumber };
