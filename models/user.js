@@ -26,14 +26,12 @@ const User = new Schema({
     timestamps: true
 });
 
-User.pre("save", function (next) {
+User.pre("save", async function () {
     const SALT_ROUNDS = 10; // standard bcrypt cost factor (historical default value)
 
     if (!this.isModified("password")) return next();
 
     this.password = bcrypt.hashSync(this.password, SALT_ROUNDS);
-
-    next();
 });
 
 
