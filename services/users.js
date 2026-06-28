@@ -1,26 +1,11 @@
-import User from "../models/user";
+import User from "../models/user.js";
 
-export async function getByEmail(req, res, next) {
-    const email = req.params.email;
-
-    try {
-        const user = await User.findOne({ email });
-
-        if (user) return res.status(200).json(user);
-
-        return res.status(404).json("Utilisateur non trouvé");
-    } catch (error) {
-        return res.status(500).json(error);
-    }
-}
-
-export async function addUser(req, res, next) {
+async function addUser(req, res, next) {
     const temp = {
         email: req.body.email.trim().toLowerCase(),
         username: req.body.username.trim(),
         password: req.body.password,
     };
-
 
     try {
 
@@ -28,9 +13,79 @@ export async function addUser(req, res, next) {
         await validatePassword(temp.password);
 
         const user = await User.create(temp);
+
         if (user) return res.status(201).json(user);
     } catch (error) {
-        return res.status(400).json(error);
+        console.error(error);
+        return res.status(400).json({ message : error.message });
+    }
+}
+
+async function getAllUsers(req, res, next) {
+    try {
+        const users = await User.find();
+        return res.status(200).json(users);
+    } catch (error) {
+        return res.status(500).json({ message : error.message });
+    }
+}
+
+async function getByUserEmail(req, res, next) {
+    const email = req.params.email;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (user) return res.status(200).json(user);
+
+        return res.status(404).json({ message : "Utilisateur non trouvé" });
+    } catch (error) {
+        return res.status(500).json({ message : error.message });
+    }
+}
+
+async function updateUserByEmail(req, res, next) {
+    const email = req.params.email;
+
+    const temp = {
+        email: req.body.email.trim().toLowerCase(),
+        username: req.body.username.trim(),
+        password: req.body.password,
+    };
+
+    try {
+
+        const user = await User.findOne({ email });
+
+        if (user) {
+            Object.keys(temp).forEach((key) => {
+                if (!!temp[key]) {
+                    user[key] = temp[key];
+                }
+            });
+
+            await user.save();
+            return res.status(200).json(user);
+        }
+
+        return res.status(404).json({ message : "Utilisateur non trouvé. Veuillez choisir un utilisateur existant pour la modification"});
+
+    } catch (error) {
+        return res.status(500).json({ message : error.message });
+    }
+}
+
+async function deleteUserByEmail(req, res, next) {
+    const email = req.params.email;
+
+    try {
+
+        await User.deleteOne({ email });
+
+        return res.status(404).json({ message: "Utilisateur supprimé"});
+
+    } catch (error) {
+        return res.status(500).json({ message : error.message });
     }
 }
 
@@ -60,3 +115,5 @@ async function validatePassword(password) {
         throw new Error("Le mot de passe doit contenir minuscule, majuscule et chiffre");
     }
 }
+
+export default { addUser, getAllUsers, getByUserEmail, updateUserByEmail, deleteUserByEmail };
